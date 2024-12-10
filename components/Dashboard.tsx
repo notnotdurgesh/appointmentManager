@@ -9,12 +9,20 @@ import { RecentAppointments } from "./RecentAppointments"
 import { AppointmentCalendar } from "./AppointmentCalendar"
 import { ManageAppointments } from "./ManageAppointments"
 import { Toaster } from "@/components/ui/toaster"
+import { FaSpinner } from "react-icons/fa"
 
 export function Dashboard() {
   const { appointments, isLoading, updateAppointment, deleteAppointment, cancelAppointment } = useAppointmentData();
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="flex flex-col items-center">
+          <FaSpinner className="animate-spin text-4xl text-blue-600" />
+          <p className="mt-4 text-lg font-medium text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   const totalAppointments = appointments.length;
