@@ -20,7 +20,6 @@ export function useAppointmentData(userId?: string) {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   // Fetch all appointments
   const fetchAppointments = useCallback(async () => {
     try {

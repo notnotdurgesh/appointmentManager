@@ -4,31 +4,35 @@ import { Appointment } from "../hooks/useAppointmentData"
 import { useState, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { format, parseISO } from "date-fns"
+import { format, parseISO, isValid } from "date-fns"
 
 export function AppointmentCalendar({ appointments }: { appointments: Appointment[] }) {
   const [date, setDate] = useState<Date | undefined>(new Date())
-  
+
   // Memoized appointments by date to improve performance
   const appointmentsByDate = useMemo(() => {
     return appointments.reduce((acc, appointment) => {
-      // Ensure the date is converted to a consistent string format
-      const dateKey = appointment.date 
-        ? format(parseISO(appointment.date), 'yyyy-MM-dd') 
-        : 'unknown'
-      
-      if (!acc[dateKey]) {
-        acc[dateKey] = []
+      try {
+        // Extract the date part from the 'date' field
+        const appointmentDate = parseISO(appointment.date);
+        const dateKey = format(appointmentDate, 'yyyy-MM-dd');
+
+        if (!acc[dateKey]) {
+          acc[dateKey] = []
+        }
+        acc[dateKey].push(appointment)
+        return acc
+      } catch (error) {
+        console.error('Error processing appointment date:', appointment.date, error);
+        return acc;
       }
-      acc[dateKey].push(appointment)
-      return acc
     }, {} as Record<string, Appointment[]>)
   }, [appointments])
 
   // Consistent date formatting for selected date appointments
   const selectedDateAppointments = useMemo(() => {
     if (!date) return []
-    
+
     const formattedDate = format(date, 'yyyy-MM-dd')
     return appointmentsByDate[formattedDate] || []
   }, [date, appointmentsByDate])
@@ -44,7 +48,7 @@ export function AppointmentCalendar({ appointments }: { appointments: Appointmen
           DayContent: (props: any) => {
             const dateString = format(props.date, 'yyyy-MM-dd')
             const hasAppointments = appointmentsByDate[dateString]
-            
+
             return (
               <div className="relative w-full h-full flex items-center justify-center">
                 <div className={`w-8 h-8 flex items-center justify-center rounded-full 
@@ -53,7 +57,7 @@ export function AppointmentCalendar({ appointments }: { appointments: Appointmen
                     : 'text-foreground'
                   } 
                   hover:bg-primary/20 transition-colors`}>
-                  <span className="text-sm font-medium">{props.label}</span>
+                  <span className="text-sm font-medium">{props.date.getDate()}</span>
                 </div>
                 {hasAppointments && (
                   <div 
